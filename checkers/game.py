@@ -57,8 +57,6 @@ class Game:
             # warunek zapobiegajacy ponownemu przeslaniu tej samej informacji o polozeniu pionka 
             if self.player == self.turn:
                 # wyslanie informacji o ruchu
-                print("ruch z", str(self.from_row), str(self.from_column))
-                print("ruch na", str(row), str(column))
                 network.send(str(self.from_row) + str(self.from_column) + str(row) + str(column))
 
             # zmiana tury

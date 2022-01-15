@@ -3,6 +3,7 @@ rows, columns = 8, 8
 field = width // columns
 padding = 13
 border = 3
+fps = 60
 
 white = '#ffffff'
 black = '#000000'
