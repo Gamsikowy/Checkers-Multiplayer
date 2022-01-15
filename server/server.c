@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+#include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -9,7 +11,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-// #include <netinet/in.h>
 #include <unistd.h>
 #include <errno.h>
 
@@ -63,13 +64,15 @@ int safeReceive(int cfd, char buffer[], int size) {
 	return correctlyReceived;
 }
 
-void *game(void* arg[]) {
+void *game(void *arg) {//[]
 	char buffer[4];
 	int running = 1, lostConnection = 0, result;
-
-	struct cln* firstPlayer = (struct cln*)arg[0];
+	
+	//struct cln *firstPlayer = (struct cln*)arg[0];
+	struct cln *firstPlayer = players[0];
 	printf("New connection, ip: %s, port: %d\n", inet_ntoa((struct in_addr)firstPlayer->caddr.sin_addr), firstPlayer->caddr.sin_port);
-	struct cln* secondPlayer = (struct cln*)arg[1];
+	//struct cln *secondPlayer = (struct cln*)arg[1];
+	struct cln *secondPlayer = players[1];
 	printf("New connection, ip: %s, port: %d\n", inet_ntoa((struct in_addr)secondPlayer->caddr.sin_addr), secondPlayer->caddr.sin_port);
 
 	// przydzielenie koloru graczowi pierwszemu
@@ -118,15 +121,15 @@ void *game(void* arg[]) {
 	while (running == 1) {
 		result = safeReceive(firstPlayer->cfd, buffer, bufferSize);
 		printf("Received %s\n", buffer);
-
+		printf("Received buffer: %d\n", result);
 		// sprawdzenie czy przeciwnik wciaz jest polaczony
-		if(result == 0) {
+		if (result == 0) {
 			running = 0;
 			lostConnection = 1;
 		}
 
 		// powiadomienie o utracie polaczenia z przeciwnikiem
-		if(lostConnection == 1) {
+		if (lostConnection == 1) {
 			running = 0;
 
 			buffer[0] = 'L';
@@ -145,10 +148,9 @@ void *game(void* arg[]) {
 			else running = 0;
 		}
 
-		if(running == 0) break;
+		if (running == 0) break;
 
-
-		if(lostConnection == 0) {
+		if (lostConnection == 0) {
 			result = safeReceive(secondPlayer->cfd, buffer, bufferSize);
 			printf("Received %s\n", buffer);
 
@@ -159,7 +161,7 @@ void *game(void* arg[]) {
 		}
 
 		// powiadomienie o utracie polaczenia z przeciwnikiem
-		if(lostConnection == 1) {
+		if (lostConnection == 1) {
 			running = 0;
 			
 			buffer[0] = 'L';
@@ -218,19 +220,12 @@ int main(int argc, char * argv[]) {
 
 	  playerInRoom++;
 	  players[playerInRoom] = c;
-	  
-	  //char a[2];
-		//safeReceive(c->cfd, a, 2);
-		//a[2]=0;
-	//printf("%s\n", a);
-	//write(c->cfd, a, 2);
-	//safeSend(c->cfd, a, 2);
      	  
 		if(playerInRoom == 1) {
 			playerInRoom = -1;
 			printf("New room created\n");
 
-			pthread_create(&tid, NULL, game, players);
+			pthread_create(&tid, NULL, game, players);//(void*)  // (void*)&players
 			pthread_detach(tid);
 		}
 	}
