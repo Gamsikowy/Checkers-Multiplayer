@@ -115,7 +115,6 @@ void *game(void *arg) {
 	while (running == 1) {
 		result = safeReceive(firstPlayer->cfd, buffer, bufferSize);
 		printf("Received %s\n", buffer);
-		printf("Received buffer: %d\n", result);
 		// sprawdzenie czy przeciwnik wciaz jest polaczony
 		if (result == 0) {
 			running = 0;
