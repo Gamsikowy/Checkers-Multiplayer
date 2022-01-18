@@ -1,7 +1,5 @@
-#python -u main.py
 from threading import Thread
 import pygame
-#from checkers.thread import StoppableThread
 from checkers.network import Network
 from checkers.game import Game
 from checkers.constants import width, height, field, black, white, fps
@@ -9,7 +7,6 @@ from checkers.constants import width, height, field, black, white, fps
 window = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Computer Networks Project')
 running = True
-t = 0
 
 def mouse_to_field(position):
     x, y = position
@@ -18,7 +15,6 @@ def mouse_to_field(position):
     return row, column
 
 def print_result(game):
-    #if game.board.get_winner() == white and game.player == white:
     if game.board.get_winner() == white:
         print("The white player is the winner")
     else:
@@ -38,6 +34,8 @@ def answer_management(game, network):
             global running
             running = False
             print_result(game)
+            global user_informed
+            user_informed = True
         else:
             #print("Moves", opponent_move[0:1], opponent_move[1:2], opponent_move[2:3], opponent_move[3:4])
             game.choose(int(opponent_move[0:1]), int(opponent_move[1:2]), network)
@@ -48,7 +46,7 @@ def answer_management(game, network):
 
 def main():
     global running
-    global t
+    global user_informed
     clock = pygame.time.Clock()
     game = Game(window)
     game.update()
@@ -62,10 +60,7 @@ def main():
     while running:
         clock.tick(fps)
 
-        # if t == 2:
-        #     game.board.black_quantity = 0
-
-        if game.board.get_winner() != None:
+        if game.board.get_winner() != None and not user_informed:
             print_result(game)
             break
 
@@ -78,11 +73,10 @@ def main():
                     position = pygame.mouse.get_pos()
                     row, column = mouse_to_field(position)
                     game.choose(row, column, network)
-                    t += 1
             else:
                 try:
                     thread = Thread(target = answer_management, args = (game, network))
-                    thread.setDaemon(True)
+                    thread.daemon = True
                     thread.start()
                 except:
                     pass

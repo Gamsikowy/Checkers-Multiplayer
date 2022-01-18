@@ -66,8 +66,6 @@ class Board:
     # rekacja na zbicie pionka
     def remove(self, pawns):
         for pawn in pawns:
-            #self.board[pawn.row][pawn.column] = 0
-
             if pawn != 0:
                 self.board[pawn.row][pawn.column] = 0
                 if pawn.color == black:

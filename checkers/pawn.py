@@ -36,7 +36,3 @@ class Pawn:
         self.row = row
         self.column = column
         self.get_position()
-
-    def __repr__(self):
-        #return str(self.color) #usunac cale?
-        return self.color

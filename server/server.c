@@ -23,11 +23,6 @@ struct cln *players[2];
 int bufferSize = 4;
 int playerInRoom = -1;
 
-void childEnd(int signc) {
-  wait(NULL);
-  printf("The child process has terminated\n");
-}
-
 int safeSend(int cfd, char buffer[], int size) {
 	int correctlySend = 0, i;
 
@@ -64,14 +59,13 @@ int safeReceive(int cfd, char buffer[], int size) {
 	return correctlyReceived;
 }
 
-void *game(void *arg) {//[]
+void *game(void *arg) {
 	char buffer[4];
 	int running = 1, lostConnection = 0, result;
 	
-	//struct cln *firstPlayer = (struct cln*)arg[0];
 	struct cln *firstPlayer = players[0];
 	printf("New connection, ip: %s, port: %d\n", inet_ntoa((struct in_addr)firstPlayer->caddr.sin_addr), firstPlayer->caddr.sin_port);
-	//struct cln *secondPlayer = (struct cln*)arg[1];
+	
 	struct cln *secondPlayer = players[1];
 	printf("New connection, ip: %s, port: %d\n", inet_ntoa((struct in_addr)secondPlayer->caddr.sin_addr), secondPlayer->caddr.sin_port);
 
@@ -205,11 +199,10 @@ int main(int argc, char * argv[]) {
 	saddr.sin_family = PF_INET;
   	saddr.sin_addr.s_addr = INADDR_ANY;
 	
-	signal(SIGCHLD, childEnd);
 	sfd = socket(PF_INET, SOCK_STREAM, 0);
 	setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on));
 	bind(sfd, (struct sockaddr*)&saddr, sizeof(saddr));
-	listen(sfd, 5);//5?
+	listen(sfd, 5);
 
 	while (1) {
 	  struct cln* c = malloc(sizeof(struct cln));
@@ -225,7 +218,7 @@ int main(int argc, char * argv[]) {
 			playerInRoom = -1;
 			printf("New room created\n");
 
-			pthread_create(&tid, NULL, game, players);//(void*)  // (void*)&players
+			pthread_create(&tid, NULL, game, players);
 			pthread_detach(tid);
 		}
 	}
