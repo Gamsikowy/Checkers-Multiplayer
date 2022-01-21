@@ -189,28 +189,23 @@ void *game(void *arg) {
 }
 
 int main(int argc, char * argv[]) {
-	struct sockaddr_in saddr; // 
+	struct sockaddr_in saddr;
   	pthread_t tid;
 	int sfd, on = 1;
 	socklen_t sl;
 	
-	//htons - funkcja konwersji z reprezentacji lokalnej do sieciowej dla liczb 16-bitowych
 	saddr.sin_port = htons(3333);
 	saddr.sin_family = PF_INET;
   	saddr.sin_addr.s_addr = INADDR_ANY;
 	
-	// utworzenie nowego gniazda do komunikacji sieciowej
-	sfd = socket(PF_INET, SOCK_STREAM, 0); //PF_INET - TCP/IP 4, SOCK_STREAM - gniazdo strumieniowe 
+	sfd = socket(PF_INET, SOCK_STREAM, 0);
 	setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on));
-	// związanie gniazda z adresem lokalnej maszyny
 	bind(sfd, (struct sockaddr*)&saddr, sizeof(saddr));
-	// przygotowanie gniazda do odbierania zgłoszeń, okresla rozmir kolejki zadan czekajcych na accept
 	listen(sfd, 5);
 
 	while (1) {
 	  struct cln* c = malloc(sizeof(struct cln));
 	  sl = sizeof(c->caddr);
-	  //pobiera gloszenie z koejki lub na nie oczekuje, dziala tylko dla gniazd strumieniowych
 	  c->cfd = accept(sfd, (struct sockaddr*)&c->caddr, &sl);
 
 	  printf("New client connected\n");
@@ -228,8 +223,6 @@ int main(int argc, char * argv[]) {
 	}
 	
 	close(sfd);
-	//po stronie klienta, shutdown wskazuje na informacje, że nie będziemy się wiecej komunikować, natomiast close oznacza 
-	//calkowite pozbycie sie, zniszczenie polaczenia wraz ze zwolnieniem pamieci
 
 	return EXIT_SUCCESS;
 }
